@@ -1,0 +1,22 @@
+{
+  "name": "tplessis/php-sdk",
+  "description": "PHP SDK for Payname API",
+  "minimum-stability": "stable",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Thomas Plessis",
+      "email": "tom.plessis@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">=5.4.0",
+    "ext-mbstring": "*",
+    "ext-openssl": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Payname\\" : "src/Payname"
+    }
+  }
+}

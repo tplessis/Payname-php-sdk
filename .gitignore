@@ -1,0 +1,21 @@
+uild
+.DS_Store
+phpunit.local.xml
+*.log
+
+# IDE
+.idea
+.project
+.settings
+.buildpath
+atlassian-ide-plugin.xml
+*.bak
+*.iml
+
+# Composer
+vendor
+composer.lock
+
+# Project
+var
+tools
