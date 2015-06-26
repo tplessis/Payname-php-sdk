@@ -11,8 +11,6 @@ use Payname\ApiConfig;
  */
 class OAuthTokenManager
 {
-    public static $TOKEN_CACHE_PATH = '/../../../var/token.cache';
-
     protected $apiConfig = null;
 
     protected $curlClient = null;
@@ -37,22 +35,25 @@ class OAuthTokenManager
     }
 
     /**
-     * Get tokens data from request POST inputs and store result in cache
+     * Save tokens data received from request POST inputs in cache
+     *
+     * @param string $access_token The access token
+     * @param string $refresh_token The refresh token
+     * @param int $access_validity The access token validity
+     * @param int $refresh_validity The refresh token validity
      *
      * @return void
      */
-    public function getTokensFromInput()
+    public function saveTokensFromInput($access_token, $refresh_token, $access_validity, $refresh_validity)
     {
-        if(isset($_POST['access_token']) && isset($_POST['refresh_token'])) {
-            $encryptedAccessToken = Crypto::encrypt($_POST['access_token'], $this->apiConfig->getApiSecret());
-            $encryptedRefreshToken = Crypto::encrypt($_POST['refresh_token'], $this->apiConfig->getApiSecret());
-            $this->setTokensInCache(
-                $encryptedAccessToken,
-                $_POST['access_validity'],
-                $encryptedRefreshToken,
-                $_POST['refresh_validity']
-            );
-        }
+        $encryptedAccessToken = Crypto::encrypt($access_token, $this->apiConfig->getApiSecret());
+        $encryptedRefreshToken = Crypto::encrypt($refresh_token, $this->apiConfig->getApiSecret());
+        $this->setTokensInCache(
+            $encryptedAccessToken,
+            $access_validity,
+            $encryptedRefreshToken,
+            $refresh_validity
+        );
     }
 
     /**
@@ -123,7 +124,7 @@ class OAuthTokenManager
     /**
      * Create an access token by making an API call
      *
-     * @return null|Payname\Transport\Response
+     * @return null|\Payname\Transport\Response
      */
     private function createAccessToken()
     {
@@ -187,7 +188,7 @@ class OAuthTokenManager
     private function getAccessTokenFromCache()
     {
         $tokens = null;
-        $cachePath = $this->getCachePath();
+        $cachePath = $this->apiConfig->getTokenCachePath() . '/token.cache';
 
         if (file_exists($cachePath)) {
             $cachedToken = file_get_contents($cachePath);
@@ -217,7 +218,7 @@ class OAuthTokenManager
     private function setTokensInCache($accessToken, $accessValidity, $refreshToken, $refreshValidity)
     {
         $tokensData = [];
-        $cachePath = $this->getCachePath();
+        $cachePath = $this->apiConfig->getTokenCachePath() . '/token.cache';
 
         if (!is_dir(dirname($cachePath))) {
             if (mkdir(dirname($cachePath), 0755, true) == false) {
@@ -236,15 +237,5 @@ class OAuthTokenManager
         if(!file_put_contents($cachePath, json_encode($tokensData))) {
             throw new ApiException('Failed to write cache');
         };
-    }
-
-    /**
-     * Returns the cache file path
-     *
-     * @return string
-     */
-    private function getCachePath()
-    {
-        return __DIR__ . self::$TOKEN_CACHE_PATH;
     }
 }

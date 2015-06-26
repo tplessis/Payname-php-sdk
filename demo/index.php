@@ -15,8 +15,8 @@ $oauthManager = new Payname\Auth\OAuthTokenManager($config);
 
 if(!empty($_POST)) {
     // Read POST inputs when Payname API returns oauth credentials after a new access token request
-    if(isset($_POST['access_token']) && isset($_POST['refresh_token'])) {
-        $oauthManager->getTokensFromInput();
+    if(isset($_POST['access_token']) && isset($_POST['refresh_token']) && isset($_POST['access_validity']) && isset($_POST['refresh_validity'])) {
+        $oauthManager->saveTokensFromInput($_POST['access_token'], $_POST['refresh_token'], $_POST['access_validity'], $_POST['refresh_validity']);
     }
 
     // Current form payment has been submitted

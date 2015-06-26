@@ -10,6 +10,9 @@ class ApiConfig
     // @var string The version of the Payname API
     private $apiVersion = '2.0.0';
 
+    // @var string The path where
+    private $tokenCachePath = '';
+
     // @var string Your API ID from your Payname account.
     private $apiId = '';
 
@@ -30,6 +33,9 @@ class ApiConfig
     {
         $this->apiId = $apiId;
         $this->apiSecret = $apiSecret;
+
+        // Default cache path
+        $this->tokenCachePath = __DIR__ . '/../../../var';
     }
 
     /**
@@ -80,6 +86,22 @@ class ApiConfig
     public function getApiBaseUrl()
     {
         return $this->apiBaseUrl;
+    }
+
+    /**
+     * @return string The token cache path
+     */
+    public function getTokenCachePath()
+    {
+        return $this->tokenCachePath;
+    }
+
+    /**
+     * @param string $path The new token cache path
+     */
+    public function setTokenCachePath($path)
+    {
+        $this->tokenCachePath = realpath($path);
     }
 
     /**
