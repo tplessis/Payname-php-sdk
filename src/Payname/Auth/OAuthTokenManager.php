@@ -2,6 +2,7 @@
 namespace Payname\Auth;
 
 use Payname\Exception\ApiException;
+use Payname\Exception\ApiResponseException;
 use Payname\Transport\CurlClient;
 use Payname\Security\Crypto;
 use Payname\ApiConfig;
@@ -124,7 +125,9 @@ class OAuthTokenManager
     /**
      * Create an access token by making an API call
      *
-     * @return null|\Payname\Transport\Response
+     * @throws ApiResponseException If an error HTTP code is returned from API call
+     *
+     * @return void
      */
     private function createAccessToken()
     {
@@ -133,13 +136,19 @@ class OAuthTokenManager
         $headers['Content-Type'] = 'application/json';
         $payLoad = array('ID' => $this->apiConfig->getApiId(), 'secret' => $this->apiConfig->getApiSecret());
 
-        return $this->curlClient->request('POST', $url, $headers, $payLoad);
+        $response = $this->curlClient->request('POST', $url, $headers, $payLoad);
+
+        // API call return an HTTP error code ? Throw an exception
+        if ($response->getHttpCode() < 200 || $response->getHttpCode() >= 300) {
+            throw new ApiResponseException($response->getMessage(), $response);
+        }
     }
 
     /**
      * Refresh access token by sending the given refresh token
      *
      * @throws ApiException If response is not well formed
+     * @throws ApiResponseException If an error HTTP code is returned from API call
      *
      * @return void
      */
@@ -155,6 +164,11 @@ class OAuthTokenManager
             $headers['Content-Type'] = 'application/json';
             $payLoad = array('ID' => $this->apiConfig->getApiId(), 'token' => $this->refreshToken);
             $response = $this->curlClient->request('POST', $url, $headers, $payLoad);
+
+            // API call return an HTTP error code ? Throw an exception
+            if ($response->getHttpCode() < 200 || $response->getHttpCode() >= 300) {
+                throw new ApiResponseException($response->getMessage(), $response);
+            }
 
             // Extract new access token and its validity from API Response
             if($response->isSuccess()) {

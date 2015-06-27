@@ -48,6 +48,8 @@ abstract class ApiCall
      * @param string      $payLoad
      * @param array       $headers
      *
+     * @throws ApiResponseException If an error HTTP code is returned from API call
+     *
      * @return string json response of the object
      */
     protected function executeCall($url, $method, $payLoad, $headers = array())
